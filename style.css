@@ -253,3 +253,35 @@ form textarea:focus {
 .back-btn1:hover {
   background: #000000;
 }
+
+.fade {
+  animation: fadeIn .4s ease;
+}
+
+@keyframes fadeIn {
+  from {opacity:0; transform: translateY(10px);}
+  to {opacity:1;}
+}
+
+.controls button {
+  margin:5px;
+  padding:6px 10px;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
+}
+
+.controls .danger {
+  background:#dc3545;
+  color:white;
+}
+
+.status.Pending {color:#ffc107;}
+.status.InProgress {color:#17a2b8;}
+.status.Resolved {color:#28a745;}
+
+.toolbar{
+  display:flex;
+  gap:10px;
+  margin-bottom:15px;
+}
