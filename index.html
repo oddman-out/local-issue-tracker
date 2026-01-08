@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Issue Tracker</title>
+    <link rel="stylesheet"
+    href="style.css">
+</head>
+<body>
+    <h1>Local Issue Tracker</h1>
+
+    <div class="top-buttons">
+        <a href="report.html">Report an issue</a>
+        <a href = "admin.html">Authority dashboard</a>
+    </div>
+
+<div id="status-summary" class="summary-bar">
+  <div class="summary-item total">Total issues: <span id="totalCount">0</span></div>
+  <div class="summary-item pending">Pending: <span id="pendingCount">0</span></div>
+  <div class="summary-item in-progress">In Progress: <span id="progressCount">0</span></div>
+  <div class="summary-item resolved">Resolved: <span id="resolvedCount">0</span></div>
+</div>
+
+    <div id="issueList"></div>
+    <script src="app.js"></script>
+</body>
+</html>
