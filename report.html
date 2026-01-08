@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Report Issue</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="page-wrapper">
+    <div class="form-card">
+      <a href="index.html" class="back-btn1">Back</a>
+  <h1>Report an Issue</h1>
+
+  <form id="issueForm" onsubmit="return false;">
+
+
+    <input type="text" id="title" placeholder="Issue Title" required><br><br>
+
+    <select id="category">
+      <option>Garbage</option>
+      <option>Road</option>
+      <option>Water</option>
+      <option>Streetlight</option>
+      <option>Safety</option>
+    </select><br><br>
+
+    <input type="text" id="location" placeholder="Location" required><br><br>
+
+    <textarea id="description" placeholder="Describe the issue" required></textarea><br><br>
+
+    <button type="submit">Submit Issue</button>
+  </form>
+
+  <script src="app.js"></script>
+</body>
+</html>
