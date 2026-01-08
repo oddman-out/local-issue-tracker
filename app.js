@@ -1,3 +1,4 @@
+// ================= TIME FORMAT =================
 function timeAgo(timestamp) {
   const seconds = Math.floor((Date.now() - timestamp) / 1000);
 
@@ -13,52 +14,98 @@ function timeAgo(timestamp) {
   return `${days} day${days > 1 ? "s" : ""} ago`;
 }
 
-const issueListDiv = 
-document.getElementById("issueList");
+// ================= STORAGE =================
+function getIssues() {
+  return JSON.parse(localStorage.getItem("issues")) || [];
+}
 
-let issues = JSON.parse(localStorage.getItem("issues")) || [];
+function saveIssues(data) {
+  localStorage.setItem("issues", JSON.stringify(data));
+}
 
+// ================= ELEMENTS =================
+const issueListDiv = document.getElementById("issueList");
+const form = document.getElementById("issueForm");
+const filterSelect = document.getElementById("filter");
+const searchInput = document.getElementById("search");
+
+// ================= DISPLAY =================
 function displayIssues() {
+  let issues = getIssues();
   updateSummaryBar(issues);
 
-if(!issueListDiv) return;
-
-issues = JSON.parse(localStorage.getItem("issues")) || [];
-
+  if (!issueListDiv) return;
   issueListDiv.innerHTML = "";
 
+  // FILTER
+  if (filterSelect && filterSelect.value !== "All") {
+    issues = issues.filter(i => i.status === filterSelect.value);
+  }
+
+  // SEARCH
+  if (searchInput && searchInput.value) {
+    const q = searchInput.value.toLowerCase();
+    issues = issues.filter(i =>
+      i.title.toLowerCase().includes(q) ||
+      i.location.toLowerCase().includes(q)
+    );
+  }
+
   if (issues.length === 0) {
-    issueListDiv.innerHTML = "<p>No issues reported yet.</p>";
+    issueListDiv.innerHTML = "<p>No issues found.</p>";
     return;
   }
 
   issues.forEach(issue => {
     const div = document.createElement("div");
-    div.className = "issue-card";
+    div.className = "issue-card fade";
 
     div.innerHTML = `
       <div class="issue-time">${timeAgo(issue.createdAt)}</div>
-      <h3>${issue.title}</h3>
-      <p><b>Category:</b> ${issue.category}</p>
-      <p><b>Location:</b> ${issue.location}</p>
+      <h3>${escapeHTML(issue.title)}</h3>
+      <p><b>Category:</b> ${escapeHTML(issue.category)}</p>
+      <p><b>Location:</b> ${escapeHTML(issue.location)}</p>
       <p class="status ${issue.status.replace(" ", "")}">
         Status: ${issue.status}
       </p>
+
+      <div class="controls">
+        <button onclick="updateStatus(${issue.id},'Pending')">Pending</button>
+        <button onclick="updateStatus(${issue.id},'In Progress')">In Progress</button>
+        <button onclick="updateStatus(${issue.id},'Resolved')">Resolved</button>
+        <button class="danger" onclick="deleteIssue(${issue.id})">Delete</button>
+      </div>
     `;
 
     issueListDiv.appendChild(div);
   });
 }
+
+// ================= CRUD =================
+function updateStatus(id, status) {
+  const issues = getIssues();
+  const index = issues.findIndex(i => i.id === id);
+  issues[index].status = status;
+  saveIssues(issues);
+  displayIssues();
+}
+
+function deleteIssue(id) {
+  if (!confirm("Delete this issue?")) return;
+  let issues = getIssues();
+  issues = issues.filter(i => i.id !== id);
+  saveIssues(issues);
+  displayIssues();
+}
+
+// ================= SUMMARY =================
 function updateSummaryBar(issues) {
   const totalEl = document.getElementById("totalCount");
   const pendingEl = document.getElementById("pendingCount");
   const progressEl = document.getElementById("progressCount");
   const resolvedEl = document.getElementById("resolvedCount");
 
-  // 🚨 If summary bar doesn't exist on this page, STOP
-  if (!totalEl || !pendingEl || !progressEl || !resolvedEl) {
-    return;
-  }
+  if (!totalEl) return;
 
   totalEl.textContent = issues.length;
   pendingEl.textContent = issues.filter(i => i.status === "Pending").length;
@@ -66,32 +113,42 @@ function updateSummaryBar(issues) {
   resolvedEl.textContent = issues.filter(i => i.status === "Resolved").length;
 }
 
-displayIssues();
-
-const form = document.getElementById("issueForm");
-
+// ================= FORM =================
 if (form) {
-  form.addEventListener("submit", function (e) {
+  form.addEventListener("submit", e => {
     e.preventDefault();
 
+    const issues = getIssues();
     const newIssue = {
       id: Date.now(),
-      title: document.getElementById("title").value,
-      category: document.getElementById("category").value,
-      location: document.getElementById("location").value,
-      description: document.getElementById("description").value,
+      title: form.title.value,
+      category: form.category.value,
+      location: form.location.value,
+      description: form.description.value,
       status: "Pending",
       createdAt: Date.now()
     };
 
     issues.unshift(newIssue);
-    localStorage.setItem("issues", JSON.stringify(issues));
-
-    setTimeout(() => {
-
+    saveIssues(issues);
     window.location.replace("index.html");
-  },200);
-});
+  });
 }
 
-setInterval(displayIssues, 1000);
+// ================= SECURITY =================
+function escapeHTML(text) {
+  return text.replace(/[&<>"']/g, m => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  })[m]);
+}
+
+// ================= EVENTS =================
+if (filterSelect) filterSelect.addEventListener("change", displayIssues);
+if (searchInput) searchInput.addEventListener("input", displayIssues);
+
+// ================= INIT =================
+displayIssues();
